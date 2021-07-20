@@ -31,12 +31,6 @@ func (h *shortHandler) CreateNewShortLink(c *gin.Context) {
 	c.JSON(201, shorted)
 }
 
-func (h *shortHandler) ShowAllShortLink(c *gin.Context) {
-	shorteds, _ := h.service.GetAll()
-
-	c.JSON(200, shorteds)
-}
-
 func (h *shortHandler) RedirectLongLink(c *gin.Context) {
 	param := c.Params.ByName("short_link")
 

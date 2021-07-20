@@ -2,69 +2,80 @@ package service
 
 import (
 	"errors"
+	"shortedLink/shortener"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Service interface {
-	GetAll() ([]ShortedLink, error)
-	Create(link string) (ShortedLink, error)
-	Update(shortLink string) (ShortedLink, error)
+	Create(link string, userId string) (ShortedLink, error)
+	Update(id string, shortLink string) (ShortedLink, error)
 	FindLongLink(shortLink string) (ShortedLink, error)
 }
 
 type service struct {
-	Memmory []ShortedLink
+	repository Repository
 }
 
-func NewService(m []ShortedLink) *service {
-	return &service{m}
+func NewService(repository Repository) *service {
+	return &service{repository}
 }
 
-func (s *service) GetAll() ([]ShortedLink, error) {
-	return s.Memmory, nil
-}
+func (s *service) Create(link string, userId string) (ShortedLink, error) {
+	newId := uuid.New()
 
-func (s *service) Create(link string) (ShortedLink, error) {
-	if link == "" {
-		return ShortedLink{}, errors.New("error link not input")
-	}
+	shortedLink := shortener.GenerateShortLink(link, userId)
 
-	// createShortLink := s.RandString(8)
-
-	// for _, m := range s.Memmory {
-	// if m.ShortLink == createShortLink {
-	// 	createShortLink = s.RandString(8)
-	// }
-	// }
-
-	newShortLinkData := ShortedLink{
-		// Id:        Count,
-		LongLink: link,
-		// ShortLink: createShortLink,
+	var newShortLink = ShortedLink{
+		Id:        newId.String(),
+		LongLink:  link,
+		ShortLink: shortedLink,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+		UserId:    userId,
 	}
 
-	s.Memmory = append(s.Memmory, newShortLinkData)
-	return newShortLinkData, nil
+	createShortLink, err := s.repository.Add(newShortLink)
+
+	if err != nil {
+		return createShortLink, err
+	}
+
+	return createShortLink, nil
 }
 
-func (s *service) Update(shortLink string) (ShortedLink, error) {
-	return ShortedLink{}, nil
+func (s *service) Update(id string, shortLink string) (ShortedLink, error) {
+	checkIdShortLink, _ := s.repository.FindById(id)
+
+	if checkIdShortLink.Id == "" || checkIdShortLink.LongLink == "" {
+		return checkIdShortLink, errors.New("error id not found")
+	}
+
+	var dataUpdate = map[string]interface{}{}
+
+	dataUpdate["short_link"] = shortLink
+	dataUpdate["updated_at"] = time.Now()
+
+	updateShortLink, err := s.repository.UpdateShortLink(id, dataUpdate)
+
+	if err != nil {
+		return updateShortLink, err
+	}
+
+	return updateShortLink, nil
 }
 
 func (s *service) FindLongLink(shortLink string) (ShortedLink, error) {
-	var find ShortedLink
+	findShortLink, err := s.repository.FindLink(shortLink)
 
-	for _, m := range s.Memmory {
-		if m.ShortLink == shortLink {
-			find = m
-		}
+	if err != nil {
+		return findShortLink, err
 	}
 
-	if find.LongLink == "" && find.ShortLink == "" {
-		return find, errors.New("error shorted link not found")
+	if findShortLink.Id == "" || findShortLink.LongLink == "" {
+		return findShortLink, errors.New("error data not found")
 	}
 
-	return find, nil
+	return findShortLink, nil
 }
