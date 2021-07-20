@@ -16,6 +16,8 @@ func failOnError(err error) {
 	}
 }
 
+// open connection to mysql
+// return value of *gorm.DB
 func ConnectionDB() *gorm.DB {
 
 	err := godotenv.Load()

@@ -24,3 +24,27 @@ func TestGenerateShortLink(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckingValidLink(t *testing.T) {
+	testTable := []map[string]string{{
+		"link":   "google.com",
+		"expect": "http://www.google.com",
+	}, {
+		"link":   "www.google.com",
+		"expect": "http://www.google.com",
+	}, {
+		"link":   "https://google.com",
+		"expect": "https://www.google.com",
+	}, {
+		"link":   "http://google.com",
+		"expect": "http://www.google.com",
+	}}
+
+	for _, test := range testTable {
+		result := CheckingValidLink(test["link"])
+
+		if result != test["expect"] {
+			t.Fail()
+		}
+	}
+}

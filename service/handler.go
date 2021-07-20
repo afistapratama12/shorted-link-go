@@ -23,7 +23,7 @@ func (h *shortHandler) CreateNewShortLink(c *gin.Context) {
 		return
 	}
 
-	var userID = c.MustGet("currentUserLogin").(string)
+	var userID = c.GetHeader("Authorization")
 
 	shorted, err := h.service.Create(input.Link, userID)
 	if err != nil {

@@ -30,7 +30,7 @@ func (s *service) Create(link string, userId string) (ShortedLink, error) {
 
 	var newShortLink = ShortedLink{
 		Id:        newId.String(),
-		LongLink:  link,
+		LongLink:  shortener.CheckingValidLink(link),
 		ShortLink: shortedLink,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

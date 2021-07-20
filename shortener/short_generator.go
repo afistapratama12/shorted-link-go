@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strings"
 
 	"github.com/itchyny/base58-go"
 	"github.com/joho/godotenv"
@@ -55,4 +56,22 @@ func base58Encoding(bytes []byte) string {
 
 	// return string value of encoded
 	return string(encoded)
+}
+
+// checking valid link with www and https://
+func CheckingValidLink(link string) string {
+	checkWww := strings.Contains(link, "www.")
+	checkHttp := strings.Contains(link, "http://")
+	checkHttps := strings.Contains(link, "https://")
+
+	if !checkWww && !checkHttp && !checkHttps {
+		link = "http://www." + link
+	} else if checkWww && !checkHttp && !checkHttps {
+		link = "http://" + link
+	} else if !checkWww && (!checkHttp || !checkHttps) {
+		split := strings.Split(link, "//")
+		link = split[0] + "//www." + split[1]
+	}
+
+	return link
 }
