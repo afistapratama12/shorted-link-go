@@ -22,7 +22,9 @@ func (h *shortHandler) CreateNewShortLink(c *gin.Context) {
 		return
 	}
 
-	shorted, err := h.service.Create(input.Link)
+	var userID = c.MustGet("currentUserLogin").(string)
+
+	shorted, err := h.service.Create(input.Link, userID)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

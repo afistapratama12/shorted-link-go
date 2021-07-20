@@ -52,6 +52,12 @@ func (s *service) Update(id string, shortLink string) (ShortedLink, error) {
 		return checkIdShortLink, errors.New("error id not found")
 	}
 
+	checkShortLink, _ := s.repository.FindLink(shortLink)
+
+	if checkShortLink.Id != "" || checkIdShortLink.ShortLink != "" {
+		return checkIdShortLink, errors.New("short link created by other user")
+	}
+
 	var dataUpdate = map[string]interface{}{}
 
 	dataUpdate["short_link"] = shortLink
