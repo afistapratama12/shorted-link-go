@@ -14,3 +14,7 @@ type ShortedLink struct {
 type ShortLinkInput struct {
 	Link string `json:"link" binding:"required"`
 }
+
+type UpdateShortLinkInput struct {
+	ShortLink string `json:"short_link" binding:"required"`
+}

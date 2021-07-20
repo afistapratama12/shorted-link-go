@@ -1,22 +1,38 @@
 package main
 
+import (
+	"shortedLink/config"
+	"shortedLink/service"
+
+	"github.com/gin-gonic/gin"
+)
+
+// initial variabel in package service
 var (
-// shortService = service.NewService(service.Memmory)
-// handler      = service.NewShortHandler(shortService)
+	db           = config.ConnectionDB()
+	shortRepo    = service.NewRepository(db)
+	shortService = service.NewService(shortRepo)
+	handler      = service.NewShortHandler(shortService)
 )
 
 func main() {
-	// r := gin.Default()
+	// initial server using gin-gonic package
+	r := gin.Default()
 
-	// r.GET("/", func(c *gin.Context) {
-	// 	c.JSON(200, gin.H{
-	// 		"message": "Welcome to the URL shortener APi",
-	// 	})
-	// })
+	// migrate table in dataabse if table not exist
+	db.AutoMigrate(&service.ShortedLink{})
 
-	// r.GET("/:short_link", handler.RedirectLongLink)
-	// r.POST("/", handler.CreateNewShortLink)
-	// // r.PUT("/:short_link_id")
+	// testing server routes for root route
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Welcome to the URL shortener APi",
+		})
+	})
 
-	// r.Run()
+	r.GET("/:short_link", handler.RedirectLongLink)
+	r.POST("/", handler.CreateNewShortLink)
+	r.PUT("/:short_link_id", handler.UpdateShortLink)
+
+	// running on default port :8080
+	r.Run()
 }

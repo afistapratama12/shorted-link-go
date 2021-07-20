@@ -10,6 +10,7 @@ type shortHandler struct {
 	service Service
 }
 
+// func to intialize new handler
 func NewShortHandler(service Service) *shortHandler {
 	return &shortHandler{service}
 }
@@ -34,11 +35,11 @@ func (h *shortHandler) CreateNewShortLink(c *gin.Context) {
 }
 
 func (h *shortHandler) RedirectLongLink(c *gin.Context) {
-	param := c.Params.ByName("short_link")
+	shortUrl := c.Params.ByName("short_link")
 
-	log.Println(param)
+	log.Println(shortUrl)
 
-	shorted, err := h.service.FindLongLink(param)
+	shorted, err := h.service.FindLongLink(shortUrl)
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -47,8 +48,24 @@ func (h *shortHandler) RedirectLongLink(c *gin.Context) {
 
 	log.Println(shorted.LongLink)
 
-	// c.Redirect(http.StatusMovedPermanently, shorted.LongLink)
+	c.Redirect(302, shorted.LongLink)
+}
 
-	// location := url.URL{}
-	// c.Request.URL
+func (h *shortHandler) UpdateShortLink(c *gin.Context) {
+	id := c.Params.ByName("short_link_id")
+
+	var update UpdateShortLinkInput
+
+	if err := c.ShouldBindJSON(&update); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	updated, err := h.service.Update(id, update.ShortLink)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, updated)
 }

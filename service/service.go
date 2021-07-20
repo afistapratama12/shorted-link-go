@@ -18,6 +18,7 @@ type service struct {
 	repository Repository
 }
 
+// func to intialize new service
 func NewService(repository Repository) *service {
 	return &service{repository}
 }
